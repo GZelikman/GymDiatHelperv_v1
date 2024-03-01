@@ -1,4 +1,4 @@
-# GymDiatHelperv_v1
+# GymDietHelperv_v1
 A small Application to track calories and weight and workouts and analyse them.
 It is a terminal based application. Which has a simple UI and is easy to use.
 
