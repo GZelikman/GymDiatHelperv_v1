@@ -115,6 +115,8 @@ def dataAnalysis():
         else:
             return "You are eating to less. You should eat more!"
         
+    
+        
 def weeklyWeightDif():
     with open(file_path, 'rb') as f:
         data = pickle.load(f)
@@ -124,8 +126,42 @@ def weeklyWeightDif():
     if daysrecorded < 8:
         return "You need at least 8 days to get a weekly weight difference."
     else:
-        weeklyWeightDif = float(data[daysrecorded]["currentWeight"]) - float(data[daysrecorded -7]["currentWeight"]) 
-        return "Your weekly weight difference is: " + str(round(weeklyWeightDif, 2)) + " kg"
+        weeklyWeightDif = 0
+        weeklycaloriesaverage = 0
+        for i in range(0, 7):
+            weeklyWeightDif = weeklyWeightDif + float(data[daysrecorded - i]["currentWeight"]) - float(data[daysrecorded - i - 1]["currentWeight"])
+            weeklycaloriesaverage  = weeklycaloriesaverage + data[daysrecorded - i]["totalCalories"]
+        weeklyWeightDif = round(weeklyWeightDif / 7, 2)
+        weeklycaloriesaverage = round(weeklycaloriesaverage / 7, 0)
+        whatchanged = ""
+        caloriesDif = round(weeklycaloriesaverage - int(data[0]["gloabalCalories"]), 0)
+        if data[0]["diet"] == "Bulking":
+            if weeklycaloriesaverage >= int(data[0]["gloabalCalories"] and weeklyWeightDif <= 0):
+                data[0]["gloabalCalories"] = round(data[0]["gloabalCalories"] + caloriesDif)
+                whatchanged = "and maitanance calories have been changed to: " + str(data[0]["gloabalCalories"])
+            elif weeklycaloriesaverage <= int(data[0]["gloabalCalories"] and weeklyWeightDif >= 0):
+                data[0]["gloabalCalories"] = round(data[0]["gloabalCalories"] + caloriesDif)
+                whatchanged = "and maitanance calories have been changed to: " + str(data[0]["gloabalCalories"])
+        elif data[0]["diet"] == "Cutting":
+            if weeklycaloriesaverage <= int(data[0]["gloabalCalories"] and weeklyWeightDif >= 0):
+                data[0]["gloabalCalories"] = round(data[0]["gloabalCalories"]) + caloriesDif
+                whatchanged = "and maitanance calories have been changed to: " + str(data[0]["gloabalCalories"])
+            elif weeklycaloriesaverage >= int(data[0]["gloabalCalories"] and weeklyWeightDif <= 0):
+                data[0]["gloabalCalories"] = round(data[0]["gloabalCalories"]) + caloriesDif
+                whatchanged = "and maitanance calories have been changed to: " + str(data[0]["gloabalCalories"])
+            elif weeklycaloriesaverage >= int(data[0]["gloabalCalories"] - 700 and weeklyWeightDif <= 0):
+                data[0]["gloabalCalories"] = round(data[0]["gloabalCalories"]) + caloriesDif
+                whatchanged = "and maitanance calories have been changed to: " + str(data[0]["gloabalCalories"])
+        elif data[0]["diet"] == "Maintenance":
+            if weeklycaloriesaverage >= int(data[0]["gloabalCalories"] and weeklyWeightDif <= 0):
+                data[0]["gloabalCalories"] = round(data[0]["gloabalCalories"]) + caloriesDif
+                whatchanged = "and maitanance calories have been changed to: " + str(data[0]["gloabalCalories"])
+            elif weeklycaloriesaverage <= int(data[0]["gloabalCalories"] and weeklyWeightDif >= 0):
+                data[0]["gloabalCalories"] = round(data[0]["gloabalCalories"]) + caloriesDif
+                whatchanged = "and maitanance calories have been changed to: " + str(data[0]["gloabalCalories"])
+        with open(file_path, 'wb') as f:
+            pickle.dump(data, f)
+        return "Your weekly weight difference is: " + str(round(weeklyWeightDif, 2)) + " kg " + whatchanged
         
 def addDailyData():
     with open(file_path, 'rb') as f:
