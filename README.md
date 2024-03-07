@@ -10,4 +10,5 @@ It uses pickel to store data.
 - Change Diet
 - Gives you a simple analysis of your data (It compares your calories intake and calories burnt and gives you a simple analysis of your data in context of your diet)
 - shows weekly weight difference
+- Changes Maitanance Calorie automaticly
 
