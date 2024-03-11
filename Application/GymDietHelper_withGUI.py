@@ -2,6 +2,8 @@ import pickle
 from tkinter import *
 from typing import Tuple
 import customtkinter
+from tkinter import simpledialog
+from tkinter import messagebox
 
 # Define the file path
 file_path = "data.pkl"
@@ -56,25 +58,160 @@ class App(customtkinter.CTk):
         self.buttonExit.grid(row=8, column=0, padx=10, pady=10, sticky="ew")
 
     def buttonGData_callback(self):
+        print("Change Global Data pressed")
+        with open(file_path, 'rb') as f:
+            data = pickle.load(f)
+        cWeight = data[0]["globalWeight"]
+        gCalorie = data[0]["gloabalCalories"]
+        diet = data[0]["diet"]
+        whatchange = simpledialog.askstring("Input","What do you wanna change(Weight[w]/Calorie[c]/Diet[d])")
+        if whatchange == "w":
+            cWeight = simpledialog.askfloat("Input", "What is your current weight in kg:")
+        elif whatchange == "c":
+            gCalorie = simpledialog.askinteger("Input", "What is your daily calorie intake in kcal:")
+        elif whatchange == "d":
+            diet = simpledialog.askstring("Input", "What is your diet? (Bulking[b]/Cutting[c]/Maintenance[m]):")
+            if diet.lower() == "b":
+                diet = "Bulking"
+            elif diet.lower() == "c":
+                diet = "Cutting"
+            elif diet.lower() == "m":
+                diet = "Maintenance"
+            else:
+                exit()
+        else:
+            exit()
+        data2 = {0:{"globalWeight": cWeight, "gloabalCalories": gCalorie, "diet": diet}}
+        data3 = {**data, **data2}
+        with open(file_path, 'wb') as f:
+            pickle.dump(data3, f) 
+        print("Your Data was changed successfully!")
+        showDataFile(self)
         return 0
     
     def buttonDData_callback(self):
+        with open(file_path, 'rb') as f:
+            data = pickle.load(f)
+        currentDay = 0
+        for i in data:
+            currentDay = i
+        currentDay = currentDay + 1
+        print("Your current day is: " + str(currentDay)) 
+        currentWeight = simpledialog.askfloat("Input", "Your current day is: " + str(currentDay) + ". What is your weight today in kg: ")
+        currentCalories = simpledialog.askinteger("Input","What is your calorie intake today in kcal: ")
+        train = simpledialog.askstring("Input","Did you do any Training today? (yes/no): ")
+        if train == "yes":
+            todaysTraining = simpledialog.askinteger("Input","How many Calories did you burn today in Training in kcal: ")
+        else:
+            todaysTraining = 0
+        totalCalories = int(currentCalories) - int(todaysTraining)
+        data2 = {currentDay:{"currentWeight": float(currentWeight), "totalCalories": totalCalories}}
+        data3 = {**data, **data2}
+        with open(file_path, 'wb') as af:
+            pickle.dump(data3, af)
+        print("Your Data was added successfully!")
+        showDataFile(self)
         return 0
     
     def buttonCDData_callback(self):
+        with open(file_path, 'rb') as f:
+            data = pickle.load(f)
+        currentDay = 0
+        for i in data:
+            currentDay = i
+        currentDay = currentDay
+        messagebox.showinfo("Information","Your current day is: " + str(currentDay))
+        whichDay = simpledialog.askinteger("Input","Which day do you want to change: ")
+        whichDay = int(whichDay)
+        if whichDay not in data:
+            messagebox.showinfo("Information","This day does not exist yet. Please add the day first.")
+            exit()
+        elif whichDay == 0:
+            messagebox.showinfo("Information","You can't change the startweight and the startcalories. Please change the global data instead.")
+        else:
+            whatChange = simpledialog.askstring("Input","What do you want to change? (Weight[w]/Calories[c]/TrainingCalories[t]/exit[e]): ")
+            if whatChange == "w":
+                currentWeight = simpledialog.askfloat("Input","What is your weight today in kg: ")
+                data[whichDay]["currentWeight"] = float(currentWeight)
+            elif whatChange == "c":
+                changeWhat = simpledialog.askstring("Input","Do you wanna add, subtract or change the total calories? (add[a]/sub[b]/change[c]): ")
+                if changeWhat == "a":
+                    currentCalories = simpledialog.askinteger("Input","How manny Calories you wanna add: ")
+                    data[whichDay]["totalCalories"] = int(data[whichDay]["totalCalories"]) + int(currentCalories)
+                elif changeWhat == "b":
+                    currentCalories = simpledialog.askinteger("Input","How manny Calories you wanna subtract: ")
+                    data[whichDay]["totalCalories"] = int(data[whichDay]["totalCalories"]) - int(currentCalories)
+                elif changeWhat == "c":
+                    currentCalories = simpledialog.askinteger("Input","What is your calorie intake today in kcal: ")
+                    todaysTraining = simpledialog.askinteger("Input","How many Calories did you burn today in Training in kcal: ")
+                    totalCalories = int(currentCalories) - int(todaysTraining)
+                    data[whichDay]["totalCalories"] = int(totalCalories)
+                else:
+                    exit()
+            elif whatChange == "t":
+                changeWhat = input("Do you wanna add or subtract the training calories? (add[a]/sub[b]): ")
+                if changeWhat == "a":
+                    todaysTraining = simpledialog.askinteger("Input","How manny Calories did you burn: ")
+                    data[whichDay]["totalCalories"] = int(data[whichDay]["totalCalories"]) - int(todaysTraining)
+                    print("You Data was changed successfully!")
+                elif changeWhat == "b":
+                    todaysTraining = simpledialog.askinteger("Input","How manny Calories you wanna subtract from Training: ")
+                    data[whichDay]["totalCalories"] = int(data[whichDay]["totalCalories"]) + int(todaysTraining)
+                    print("You Data was changed successfully!")
+            elif whatChange == "e":
+                exit()
+            else:
+                exit()
+        with open(file_path, 'wb') as f:
+            pickle.dump(data, f)
+        print("You Data was changed successfully!")
+        showDataFile(self)
         return 0
     
     def buttonDDData_callback(self):
+        with open(file_path, 'rb') as f:
+            data = pickle.load(f)
+        currentDay = 0
+        for i in data:
+            currentDay = i
+        currentDay = currentDay
+        messagebox.showinfo("Information","Your current day is: " + str(currentDay))
+        whichDay = simpledialog.askinteger("Input","Which day do you want to delete: ")
+        whichDay = int(whichDay)
+        if whichDay not in data:
+            messagebox.showinfo("Information","This day does not exist yet. Please add the day first.")
+            exit()
+        elif whichDay == 0:
+            messagebox.showinfo("Information","You can't delete the startweight and the startcalories. Please change the global data instead.")
+            exit()
+        else:
+            delete = simpledialog.askstring("Input","Do you really wanna delete this day? (yes/no): ")
+            if delete == "yes":
+                del data[whichDay]
+                messagebox.showinfo("Information","Your Data was deleted successfully!")
+            elif delete == "no":
+                messagebox.showinfo("Information","Your Data was not deleted!")
+            else:
+                exit()
+        with open(file_path, 'wb') as f:
+            pickle.dump(data, f)
+        showDataFile(self)
         return 0
     
     def buttonSData_callback(self):
+        with open(file_path, 'rb') as f:
+            data = pickle.load(f)
+        whichDay = simpledialog.askinteger("Input","Which day do you want to show: ")
+        whichDay = int(whichDay)
+        if whichDay not in data:
+            messagebox.showinfo("Information","This day does not exist yet. Please add the day first.")
+        else:
+            messagebox.showinfo("Information","Weight: " +str(data[whichDay]["currentWeight"]) + " kg, Calorie: " + str(data[whichDay]["totalCalories"]) + " kcal")
+        showDataFile(self) 
         return 0
     
     def buttonExit_callback(self):
         exit()
-
-    def createData(self):
-        return 0
 
 
 def createDataFile(app):
@@ -86,53 +223,19 @@ def createDataFile(app):
         # If the file does not exist, create an empty pickle file
         app.createData()
         print("No Data yet, we will fill it together!")
-        Weight = input("What is your current weight in kg: ")
-        Calories = input("What is your daily calorie intake in kcal: ")
-        diet = input("What is your diet? (Bulking[B]/Cutting[c]/Maintenance[m]): ")
-        if diet == "b":
+        Weight = simpledialog.askfloat("Input", "What is your current weight in kg:")
+        Calories = simpledialog.askinteger("Input", "What is your daily calorie intake in kcal:")
+        diet = simpledialog.askstring("Input", "What is your diet? (Bulking[b]/Cutting[c]/Maintenance[m]):")
+        if diet.lower() == "b":
             diet = "Bulking"
-        elif diet == "c":
+        elif diet.lower() == "c":
             diet = "Cutting"
-        elif diet == "m":
+        elif diet.lower() == "m":
             diet = "Maintenance"
-        Day = 0
-        data = {Day:{"globalWeight": float(Weight), "gloabalCalories": int(Calories), "diet": diet}}
-        with open(file_path, 'wb') as f:
-            pickle.dump(data, f)
-
-def changeDataFile():
-    # Load the data from the file
-    with open(file_path, 'rb') as f:
-        data = pickle.load(f)
-    # Change the data
-    changing = "a"
-    while changing != "w" and changing != "c" and changing != "d":
-        print(changing)
-        changing = input("What do you want to change? (Weight[w]/Calories[c]/Diet[d]): ")
-        if changing == "w":
-            realyChange = input("Do not Change this Weight, if you don't want to reset the Calculation. Still wanna change the weight? (yes/no): ")
-            if realyChange == "yes":
-                Weight = input("What is your current weight in kg: ")
-                data[0]["globalWeight"] = float(Weight)
-        elif changing == "c":
-            realyChange = input("Do not Change this Calories, if you don't want to reset the Calculation. Still wanna change the Calories? (yes/no): ")
-            if realyChange == "yes":
-                Calories = input("What is your daily calorie intake in kcal: ")
-                data[0]["gloabalCalories"] = int(Calories)
-        elif changing == "d":
-            diet = input("What is your diet? (Bulking[b]/Cutting[c]/Maintenance[m]): ")
-            if diet == "b":
-                diet = "Bulking"
-            elif diet == "c":
-                diet = "Cutting"
-            elif diet == "m":
-                diet = "Maintenance"
-            data[0]["diet"] = diet
         else:
-            exitWhile = input("Please enter a valid input. Do you want to exit? (yes/no): ")
-            if exitWhile == "yes":
-                exit()
-        # Save the data
+            exit()
+        Day = 0
+        data = {Day:{"globalWeight": Weight, "gloabalCalories": Calories, "diet": diet}}
         with open(file_path, 'wb') as f:
             pickle.dump(data, f)
 
@@ -194,120 +297,6 @@ def weeklyWeightDif():
     else:
         weeklyWeightDif = float(data[daysrecorded]["currentWeight"]) - float(data[daysrecorded -7]["currentWeight"]) 
         return "Your weekly weight difference is: " + str(round(weeklyWeightDif, 2)) + " kg"
-        
-def addDailyData():
-    with open(file_path, 'rb') as f:
-        data = pickle.load(f)
-    currentDay = 0
-    for i in data:
-        currentDay = i
-    currentDay = currentDay + 1
-    print("Your current day is: " + str(currentDay)) 
-    currentWeight = input("What is your weight today in kg(you should weight yourself in the morning after going to the toilet): ")
-    currentCalories = input("What is your calorie intake today in kcal: ")
-    train = input("Did you do any Training today? (yes/no): ")
-    if train == "yes":
-        todaysTraining = input("How many Calories did you burn today in Training in kcal: ")
-    else:
-        todaysTraining = 0
-    totalCalories = int(currentCalories) - int(todaysTraining)
-    data2 = {currentDay:{"currentWeight": float(currentWeight), "totalCalories": totalCalories}}
-    data3 = {**data, **data2}
-    with open(file_path, 'wb') as af:
-        pickle.dump(data3, af)
-    print("Your Data was added successfully!")
-
-def changeDailyData():
-    with open(file_path, 'rb') as f:
-        data = pickle.load(f)
-    currentDay = 0
-    for i in data:
-        currentDay = i
-    currentDay = currentDay
-    print("Your current day is: " + str(currentDay))
-    print("Your Data for today is: ")
-    print("Your weight today is: " + str(data[currentDay]["currentWeight"]) + " kg")
-    print("Your calorie intake today is: " + str(data[currentDay]["totalCalories"]) + " kcal") 
-    whichDay = input("Which day do you want to change: ")
-    whichDay = int(whichDay)
-    if whichDay not in data:
-        print("This day does not exist yet. Please add the day first.")
-    elif whichDay == 0:
-        print("You can't change the startweight and the startcalories. Please change the global data instead.")
-    else:
-        print("Your Data for this day is: ")
-        print("Your weight today is: " + str(data[whichDay]["currentWeight"]) + " kg")
-        print("Your calorie intake today is: " + str(data[whichDay]["totalCalories"]) + " kcal")
-        whatChange = input("What do you want to change? (Weight[w]/Calories[c]/TrainingCalories[t]/exit[e]): ")
-        if whatChange == "w":
-            currentWeight = input("What is your weight today in kg: ")
-            data[whichDay]["currentWeight"] = float(currentWeight)
-            print("You Data was changed successfully!")
-        elif whatChange == "c":
-            changeWhat = input("Do you wanna add, subtract or change the total calories? (add[a]/sub[b]/change[c]): ")
-            if changeWhat == "a":
-                currentCalories = input("How manny Calories you wanna add: ")
-                data[whichDay]["totalCalories"] = int(data[whichDay]["totalCalories"]) + int(currentCalories)
-                print("You Data was changed successfully!")
-            elif changeWhat == "b":
-                currentCalories = input("How manny Calories you wanna subtract: ")
-                data[whichDay]["totalCalories"] = int(data[whichDay]["totalCalories"]) - int(currentCalories)
-                print("You Data was changed successfully!")
-            elif changeWhat == "c":
-                currentCalories = input("What is your calorie intake today in kcal: ")
-                todaysTraining = input("How many Calories did you burn today in Training in kcal: ")
-                totalCalories = int(currentCalories) - int(todaysTraining)
-                data[whichDay]["totalCalories"] = int(totalCalories)
-                print("You Data was changed successfully!")
-        elif whatChange == "t":
-            changeWhat = input("Do you wanna add or subtract the training calories? (add[a]/sub[b]): ")
-            if changeWhat == "a":
-                todaysTraining = input("How manny Calories did you burn: ")
-                data[whichDay]["totalCalories"] = int(data[whichDay]["totalCalories"]) - int(todaysTraining)
-                print("You Data was changed successfully!")
-            elif changeWhat == "b":
-                todaysTraining = input("How manny Calories you wanna subtract from Training: ")
-                data[whichDay]["totalCalories"] = int(data[whichDay]["totalCalories"]) + int(todaysTraining)
-                print("You Data was changed successfully!")
-        elif whatChange == "e":
-            exit()
-        else:
-            exitWhile = input("Please enter a valid input. Do you want to exit? (yes/no): ")
-            if exitWhile == "yes":
-                exit()
-    with open(file_path, 'wb') as f:
-        pickle.dump(data, f)
-
-def deleteDailyData():
-    with open(file_path, 'rb') as f:
-        data = pickle.load(f)
-    currentDay = 0
-    for i in data:
-        currentDay = i
-    currentDay = currentDay
-    print("Your current day is: " + str(currentDay))
-    whichDay = input("Which day do you want to delete: ")
-    whichDay = int(whichDay)
-    if whichDay not in data:
-        print("This day does not exist yet. Please add the day first.")
-    elif whichDay == 0:
-        print("You can't delete the startweight and the startcalories. Please change the global data instead.")
-    else:
-        print("Your Data for this day is: ")
-        print("Your weight today is: " + str(data[whichDay]["currentWeight"]) + " kg")
-        print("Your calorie intake today is: " + str(data[whichDay]["totalCalories"]) + " kcal")
-        delete = input("Do you really wanna delete this day? (yes/no): ")
-        if delete == "yes":
-            del data[whichDay]
-            print("Your Data was deleted successfully!")
-        elif delete == "no":
-            print("Your Data was not deleted!")
-        else:
-            exitWhile = input("Please enter a valid input. Do you want to exit? (yes/no): ")
-            if exitWhile == "yes":
-                exit()
-    with open(file_path, 'wb') as f:
-        pickle.dump(data, f)
 
 def showDailyData():
     with open(file_path, 'rb') as f:
