@@ -298,19 +298,6 @@ def weeklyWeightDif():
         weeklyWeightDif = float(data[daysrecorded]["currentWeight"]) - float(data[daysrecorded -7]["currentWeight"]) 
         return "Your weekly weight difference is: " + str(round(weeklyWeightDif, 2)) + " kg"
 
-def showDailyData():
-    with open(file_path, 'rb') as f:
-        data = pickle.load(f)
-    whichDay = input("Which day do you want to show: ")
-    whichDay = int(whichDay)
-    if whichDay not in data:
-        print("This day does not exist yet. Please add the day first.")
-    else:
-        print("Your Data for this day is: ")
-        print("Your weight on that day is: " + str(data[whichDay]["currentWeight"]) + " kg")
-        print("Your calorie intake on that day is: " + str(data[whichDay]["totalCalories"]) + " kcal")
-
-
 app = App()
 createDataFile(app)
 showDataFile(app)
