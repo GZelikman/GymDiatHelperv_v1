@@ -1,4 +1,5 @@
 import pickle
+import os
 
 # Define the file path
 file_path = "data.pkl"
@@ -20,6 +21,12 @@ def createDataFile():
             diet = "Cutting"
         elif diet == "m":
             diet = "Maintenance"
+        elif diet != "b" and diet != "c" and diet != "m":
+            print("Please enter a valid input!")
+            exit()
+        if Weight == "" or Calories == "":
+            print("Please enter a valid input!")
+            exit()
         Day = 0
         data = {Day:{"globalWeight": float(Weight), "gloabalCalories": int(Calories), "diet": diet}}
         with open(file_path, 'wb') as f:
@@ -277,6 +284,15 @@ def deleteDailyData():
     with open(file_path, 'wb') as f:
         pickle.dump(data, f)
 
+def deleteAllData():
+    delete = input("Do you really wanna delete all data? (yes/no): ")
+    if delete == "yes":
+        os.remove("data.pkl")
+        print("All Data was deleted successfully!")
+    elif delete == "no":
+        print("Your Data was not deleted!")
+    exit()
+
 def showDailyData():
     with open(file_path, 'rb') as f:
         data = pickle.load(f)
@@ -301,7 +317,8 @@ while True:
     print("3. Change Daily Data")
     print("4. Delete Daily Data")
     print("5. Show Data")
-    print("6. Exit")
+    print("6. Delete All Data")
+    print("7. Exit")
     print("---------------------------------------------------------------------------------------------------------------------------------")
     option = input("What do you want to do? (Change Global Data[1]/Add Daily Data[2]/Change Daily Data[3]/Delete Daily Data[4]/Show Data[5]/Exit[6]): ")
     if option == "1":
@@ -315,6 +332,8 @@ while True:
     elif option == "5":
         showDailyData()
     elif option == "6":
+        deleteAllData()
+    elif option == "7":
         exit()
     else:
         print("Please enter a valid input")

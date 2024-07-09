@@ -250,8 +250,6 @@ class App(customtkinter.CTk):
         return 0
     
     def buttonDAData_callback(self):
-        with open(file_path, 'rb') as f:
-            data = pickle.load(f)
         delete = simpledialog.askstring("Input","Do you really wanna delete all data? (yes/no): ")
         if delete == "yes":
             os.remove("data.pkl")
