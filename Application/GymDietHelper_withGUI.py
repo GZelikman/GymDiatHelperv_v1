@@ -4,6 +4,7 @@ from typing import Tuple
 import customtkinter
 from tkinter import simpledialog
 from tkinter import messagebox
+import os
 
 # Define the file path
 file_path = "data.pkl"
@@ -69,8 +70,11 @@ class App(customtkinter.CTk):
         self.buttonSData = customtkinter.CTkButton(self, text="Show Daily Data", command=self.buttonSData_callback)
         self.buttonSData.grid(row=7, column=0, columnspan=4, padx=10, pady=10, sticky="ew")
 
+        self.buttonSData = customtkinter.CTkButton(self, text="Delete All Data", command=self.buttonDAData_callback)
+        self.buttonSData.grid(row=8, column=0, columnspan=4, padx=10, pady=10, sticky="ew")
+
         self.buttonExit = customtkinter.CTkButton(self, text="Exit", command=self.buttonExit_callback)
-        self.buttonExit.grid(row=8, column=0, columnspan=4, padx=10, pady=10, sticky="ew")
+        self.buttonExit.grid(row=9, column=0, columnspan=4, padx=10, pady=10, sticky="ew")
 
     def buttonGData_callback(self):
         print("Change Global Data pressed")
@@ -244,6 +248,17 @@ class App(customtkinter.CTk):
             messagebox.showinfo("Information","Weight: " +str(data[whichDay]["currentWeight"]) + " kg, Calorie: " + str(data[whichDay]["totalCalories"]) + " kcal")
         showDataFile(self) 
         return 0
+    
+    def buttonDAData_callback(self):
+        with open(file_path, 'rb') as f:
+            data = pickle.load(f)
+        delete = simpledialog.askstring("Input","Do you really wanna delete all data? (yes/no): ")
+        if delete == "yes":
+            os.remove("data.pkl")
+            messagebox.showinfo("Information","All Data was deleted successfully!")
+        elif delete == "no":
+            messagebox.showinfo("Information","Your Data was not deleted!")
+        exit()
     
     def errorWithData(self, msg):
         messagebox.showinfo("Error", msg)
